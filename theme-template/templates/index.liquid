@@ -1,10 +1,916 @@
-{% for product in collections.frontpage.products limit:4 %}
-  <div>
-    <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
-    {{ product.price | money }}
-    {% unless product.available %}<br><strong>sold out</strong>{% endunless %}
-    <a href="{{ product.url | within: collection }}">
-      <img src="{{ product.featured_image.src | img_url: 'large' }}" alt="{{ product.featured_image.alt | escape }}">
-    </a>
+{% comment %}
+  StellarLight Magic - Homepage Template
+  Modern homepage with hero section, featured products carousel, and promotional sections
+{% endcomment %}
+
+<!-- Hero Section -->
+<section class="hero hero--full" aria-labelledby="hero-heading">
+  <div class="hero__overlay"></div>
+  <div class="hero__content">
+    <span class="hero__overline">Welcome to</span>
+    <h1 class="hero__title" id="hero-heading">
+      {{ shop.name }}
+    </h1>
+    <p class="hero__description">
+      Discover premium products crafted with excellence. Experience the perfect blend of quality and style.
+    </p>
+    <div class="hero__buttons">
+      <a href="/collections/all" class="btn btn--primary btn--lg">Shop Now</a>
+      <a href="#featured-products" class="btn btn--outline-gold btn--lg">View Collection</a>
+    </div>
   </div>
-{% endfor %}
+</section>
+
+<!-- Featured Products Section with Carousel -->
+<section class="section" id="featured-products" aria-labelledby="featured-heading">
+  <div class="container">
+    <div class="section__header">
+      <span class="section__overline">Curated Selection</span>
+      <h2 class="section__title h2" id="featured-heading">Featured Products</h2>
+      <p class="section__description">
+        Hand-picked items that showcase our commitment to quality and design.
+      </p>
+    </div>
+
+    <!-- Product Carousel -->
+    <div class="product-carousel" id="ProductCarousel">
+      <div class="product-carousel__wrapper">
+        <div class="product-carousel__track">
+          {% if collections.frontpage.products.size > 0 %}
+            {% for product in collections.frontpage.products limit:12 %}
+              <div class="product-carousel__slide">
+                {% render 'product-card', product: product %}
+              </div>
+            {% endfor %}
+          {% else %}
+            {% for product in collections.all.products limit:12 %}
+              <div class="product-carousel__slide">
+                {% render 'product-card', product: product %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Carousel Navigation -->
+      <div class="product-carousel__controls">
+        <button type="button" class="product-carousel__btn product-carousel__btn--prev" aria-label="Previous products">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"/>
+          </svg>
+        </button>
+        <div class="product-carousel__dots" id="CarouselDots"></div>
+        <button type="button" class="product-carousel__btn product-carousel__btn--next" aria-label="Next products">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9,6 15,12 9,18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="section__footer text-center mt-xl">
+      <a href="/collections/all" class="btn btn--outline">View All Products</a>
+    </div>
+  </div>
+</section>
+
+<!-- Value Propositions Section -->
+<section class="section section--alt" aria-labelledby="values-heading">
+  <div class="container">
+    <div class="section__header">
+      <span class="section__overline">Why Choose Us</span>
+      <h2 class="section__title h2" id="values-heading">The StellarLight Difference</h2>
+    </div>
+
+    <div class="value-grid">
+      <div class="value-card">
+        <div class="value-card__icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+        </div>
+        <h3 class="value-card__title">Premium Quality</h3>
+        <p class="value-card__text">Every product is carefully selected to meet our rigorous quality standards.</p>
+      </div>
+
+      <div class="value-card">
+        <div class="value-card__icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M16 8l-4 4-2-2"/>
+            <path d="M12 16v-4"/>
+          </svg>
+        </div>
+        <h3 class="value-card__title">Fast Shipping</h3>
+        <p class="value-card__text">Free shipping on orders over $50. Delivered to your doorstep within 3-5 days.</p>
+      </div>
+
+      <div class="value-card">
+        <div class="value-card__icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h3 class="value-card__title">Secure Checkout</h3>
+        <p class="value-card__text">Shop with confidence. Your payment information is always protected.</p>
+      </div>
+
+      <div class="value-card">
+        <div class="value-card__icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <h3 class="value-card__title">24/7 Support</h3>
+        <p class="value-card__text">Our dedicated team is here to help you with any questions or concerns.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- New Arrivals Feature Section -->
+<section class="feature-section" aria-labelledby="feature-1-heading">
+  <div class="container">
+    <div class="feature-section__grid">
+      <div class="feature-section__image">
+        {% if collections.new-arrivals.image %}
+          <img src="{{ collections.new-arrivals.image | img_url: '800x600' }}"
+               srcset="{{ collections.new-arrivals.image | img_url: '400x300' }} 400w,
+                       {{ collections.new-arrivals.image | img_url: '600x450' }} 600w,
+                       {{ collections.new-arrivals.image | img_url: '800x600' }} 800w,
+                       {{ collections.new-arrivals.image | img_url: '1200x900' }} 1200w"
+               sizes="(min-width: 1024px) 50vw, 100vw"
+               alt="{{ collections.new-arrivals.title | default: 'New Arrivals' | escape }}"
+               loading="lazy">
+        {% elsif collections.featured.image %}
+          <img src="{{ collections.featured.image | img_url: '800x600' }}"
+               srcset="{{ collections.featured.image | img_url: '400x300' }} 400w,
+                       {{ collections.featured.image | img_url: '600x450' }} 600w,
+                       {{ collections.featured.image | img_url: '800x600' }} 800w,
+                       {{ collections.featured.image | img_url: '1200x900' }} 1200w"
+               sizes="(min-width: 1024px) 50vw, 100vw"
+               alt="{{ collections.featured.title | default: 'Featured Collection' | escape }}"
+               loading="lazy">
+        {% else %}
+          <div class="feature-section__image-placeholder">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21,15 16,10 5,21"/>
+            </svg>
+          </div>
+        {% endif %}
+      </div>
+      <div class="feature-section__content">
+        <span class="section__overline section__overline--left">New Arrivals</span>
+        <h2 class="feature-section__title h2" id="feature-1-heading">Discover Our Latest Collection</h2>
+        <p class="feature-section__text">
+          Explore our newest additions, carefully curated to bring you the latest trends and timeless classics. Each piece is selected with our commitment to quality and style in mind.
+        </p>
+        <a href="{% if collections.new-arrivals %}{{ collections.new-arrivals.url }}{% else %}/collections/all{% endif %}" class="btn btn--primary">
+          Shop New Arrivals
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Collections Grid -->
+<section class="section" aria-labelledby="collections-heading">
+  <div class="container">
+    <div class="section__header">
+      <span class="section__overline">Browse By Category</span>
+      <h2 class="section__title h2" id="collections-heading">Shop Collections</h2>
+    </div>
+
+    <div class="collections-grid">
+      {% for collection in collections limit:3 %}
+        {% unless collection.all_products_count == 0 %}
+          <a href="{{ collection.url }}" class="collection-card">
+            <div class="collection-card__image">
+              {% if collection.image %}
+                <img src="{{ collection.image | img_url: '600x400' }}"
+                     srcset="{{ collection.image | img_url: '300x200' }} 300w,
+                             {{ collection.image | img_url: '450x300' }} 450w,
+                             {{ collection.image | img_url: '600x400' }} 600w"
+                     sizes="(min-width: 768px) 33vw, 100vw"
+                     alt="{{ collection.title | escape }}"
+                     loading="lazy">
+              {% elsif collection.products.first.featured_image %}
+                <img src="{{ collection.products.first.featured_image | img_url: '600x400' }}"
+                     srcset="{{ collection.products.first.featured_image | img_url: '300x200' }} 300w,
+                             {{ collection.products.first.featured_image | img_url: '450x300' }} 450w,
+                             {{ collection.products.first.featured_image | img_url: '600x400' }} 600w"
+                     sizes="(min-width: 768px) 33vw, 100vw"
+                     alt="{{ collection.title | escape }}"
+                     loading="lazy">
+              {% else %}
+                <div class="collection-card__image-placeholder">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+              {% endif %}
+              <div class="collection-card__overlay"></div>
+            </div>
+            <div class="collection-card__content">
+              <h3 class="collection-card__title">{{ collection.title }}</h3>
+              <span class="collection-card__count">{{ collection.all_products_count }} {{ collection.all_products_count | pluralize: 'product', 'products' }}</span>
+            </div>
+          </a>
+        {% endunless %}
+      {% endfor %}
+    </div>
+
+    <div class="section__footer text-center mt-xl">
+      <a href="/collections" class="btn btn--outline">View All Collections</a>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section" aria-labelledby="newsletter-heading">
+  <div class="container">
+    <div class="newsletter-section__content">
+      <span class="section__overline">Stay Connected</span>
+      <h2 class="newsletter-section__title h2" id="newsletter-heading">Join Our Newsletter</h2>
+      <p class="newsletter-section__text">
+        Subscribe to receive updates on new arrivals, special offers, and exclusive content.
+      </p>
+      <form class="newsletter-form" action="/contact#contact_form" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="form_type" value="customer">
+        <input type="hidden" name="utf8" value="✓">
+        <div class="newsletter-form__input-group">
+          <input type="email"
+                 name="contact[email]"
+                 class="form-input newsletter-form__input"
+                 placeholder="Enter your email"
+                 required
+                 aria-label="Email address">
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          <button type="submit" class="btn btn--primary newsletter-form__button">
+            Subscribe
+          </button>
+        </div>
+      </form>
+      <p class="newsletter-section__disclaimer">
+        By subscribing, you agree to our Privacy Policy and consent to receive updates.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Social Feed Section (Placeholder) -->
+<section class="section section--compact" aria-labelledby="social-heading">
+  <div class="container">
+    <div class="section__header">
+      <span class="section__overline">Follow Us</span>
+      <h2 class="section__title h2" id="social-heading">@{{ shop.name | handle }}</h2>
+      <p class="section__description">Tag us to be featured</p>
+    </div>
+
+    <div class="social-grid">
+      {% for i in (1..6) %}
+        <div class="social-grid__item">
+          <div class="social-grid__placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Value Grid */
+  .value-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: var(--space-xl);
+  }
+
+  @media (min-width: 640px) {
+    .value-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .value-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .value-card {
+    text-align: center;
+    padding: var(--space-xl);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .value-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .value-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    margin-bottom: var(--space-lg);
+    color: var(--color-gold);
+    background: var(--color-gold-light);
+    border-radius: var(--radius-full);
+  }
+
+  [data-theme="dark"] .value-card__icon {
+    background: rgba(212, 180, 100, 0.2);
+  }
+
+  .value-card__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+  }
+
+  .value-card__text {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  /* Product Carousel */
+  .product-carousel {
+    position: relative;
+    margin: 0 calc(-1 * var(--container-padding));
+    padding: 0 var(--container-padding);
+  }
+
+  .product-carousel__wrapper {
+    overflow: hidden;
+    margin: 0 -10px;
+  }
+
+  .product-carousel__track {
+    display: flex;
+    gap: var(--space-lg);
+    transition: transform 0.5s ease;
+    will-change: transform;
+  }
+
+  .product-carousel__slide {
+    flex: 0 0 calc(50% - 12px);
+    min-width: calc(50% - 12px);
+  }
+
+  @media (min-width: 768px) {
+    .product-carousel__slide {
+      flex: 0 0 calc(33.333% - 16px);
+      min-width: calc(33.333% - 16px);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .product-carousel__slide {
+      flex: 0 0 calc(25% - 18px);
+      min-width: calc(25% - 18px);
+    }
+  }
+
+  .product-carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-base);
+    margin-top: var(--space-xl);
+  }
+
+  .product-carousel__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .product-carousel__btn:hover:not(:disabled) {
+    color: var(--color-gold);
+    border-color: var(--color-gold);
+    background: var(--color-gold-light);
+  }
+
+  .product-carousel__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  [data-theme="dark"] .product-carousel__btn:hover:not(:disabled) {
+    background: rgba(212, 180, 100, 0.2);
+  }
+
+  .product-carousel__dots {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .product-carousel__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-border);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .product-carousel__dot:hover {
+    background: var(--color-text-muted);
+  }
+
+  .product-carousel__dot--active {
+    width: 24px;
+    background: var(--color-gold);
+  }
+
+  /* Feature Section */
+  .feature-section {
+    padding: var(--space-4xl) 0;
+    background: var(--color-surface);
+  }
+
+  .feature-section__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .feature-section__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3xl);
+    }
+  }
+
+  .feature-section__image {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 4/3;
+  }
+
+  .feature-section__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .feature-section__image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+  }
+
+  .feature-section__content {
+    padding: var(--space-lg) 0;
+  }
+
+  .section__overline--left {
+    text-align: left;
+  }
+
+  .section__overline--left::before {
+    left: 0;
+    transform: none;
+  }
+
+  .feature-section__title {
+    margin-bottom: var(--space-lg);
+  }
+
+  .feature-section__text {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xl);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Collections Grid */
+  .collections-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    .collections-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .collection-card {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 3/2;
+  }
+
+  .collection-card__image {
+    position: absolute;
+    inset: 0;
+  }
+
+  .collection-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .collection-card:hover .collection-card__image img {
+    transform: scale(1.1);
+  }
+
+  .collection-card__image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+  }
+
+  .collection-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(13, 27, 42, 0.8) 100%);
+  }
+
+  .collection-card__content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-lg);
+    color: var(--color-text-inverse);
+    z-index: 10;
+  }
+
+  .collection-card__title {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: var(--space-xs);
+  }
+
+  .collection-card__count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-gold);
+  }
+
+  /* Newsletter Section */
+  .newsletter-section {
+    padding: var(--space-4xl) 0;
+    background: var(--color-navy);
+    color: var(--color-text-inverse);
+    text-align: center;
+  }
+
+  [data-theme="dark"] .newsletter-section {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .newsletter-section__content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .newsletter-section__title {
+    color: var(--color-text-inverse);
+    margin-bottom: var(--space-base);
+  }
+
+  .newsletter-section__text {
+    color: rgba(240, 238, 232, 0.8);
+    margin-bottom: var(--space-xl);
+  }
+
+  .newsletter-form__input-group {
+    display: flex;
+    gap: var(--space-sm);
+    max-width: 450px;
+    margin: 0 auto;
+  }
+
+  .newsletter-form__input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .newsletter-form__button {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    .newsletter-form__input-group {
+      flex-direction: column;
+    }
+
+    .newsletter-form__button {
+      width: 100%;
+    }
+  }
+
+  .newsletter-section__disclaimer {
+    font-size: 12px;
+    color: rgba(240, 238, 232, 0.6);
+    margin-top: var(--space-base);
+    margin-bottom: 0;
+  }
+
+  /* Social Grid */
+  .social-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-base);
+  }
+
+  @media (min-width: 640px) {
+    .social-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .social-grid {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+
+  .social-grid__item {
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .social-grid__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    transition: background-color var(--transition-fast);
+  }
+
+  .social-grid__item:hover .social-grid__placeholder {
+    background: var(--color-gold-light);
+    color: var(--color-gold);
+  }
+
+  /* Section Alt Background */
+  .section--alt {
+    background: var(--color-surface);
+  }
+
+  .section__footer {
+    margin-top: var(--space-xl);
+  }
+
+  /* Carousel Touch Support */
+  @media (hover: none) and (pointer: coarse) {
+    .product-carousel__track {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .product-carousel__track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .product-carousel__slide {
+      scroll-snap-align: start;
+    }
+
+    .product-carousel__controls {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Product Carousel Functionality
+  (function() {
+    const carousel = document.getElementById('ProductCarousel');
+    if (!carousel) return;
+
+    const track = carousel.querySelector('.product-carousel__track');
+    const slides = carousel.querySelectorAll('.product-carousel__slide');
+    const prevBtn = carousel.querySelector('.product-carousel__btn--prev');
+    const nextBtn = carousel.querySelector('.product-carousel__btn--next');
+    const dotsContainer = document.getElementById('CarouselDots');
+
+    if (!track || slides.length === 0) return;
+
+    let currentIndex = 0;
+    let slidesPerView = getSlidesPerView();
+    let totalSlides = slides.length;
+    let maxIndex = Math.max(0, totalSlides - slidesPerView);
+
+    // Create dots
+    function createDots() {
+      if (!dotsContainer) return;
+
+      dotsContainer.innerHTML = '';
+      const dotsCount = Math.ceil(totalSlides / slidesPerView);
+
+      for (let i = 0; i < dotsCount; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'product-carousel__dot' + (i === 0 ? ' product-carousel__dot--active' : '');
+        dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+        dot.addEventListener('click', () => goToSlide(i * slidesPerView));
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    // Get slides per view based on viewport
+    function getSlidesPerView() {
+      if (window.innerWidth >= 1024) return 4;
+      if (window.innerWidth >= 768) return 3;
+      return 2;
+    }
+
+    // Update carousel position
+    function updateCarousel() {
+      const slideWidth = slides[0].offsetWidth + 24; // Include gap
+      track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+
+      // Update buttons
+      if (prevBtn) prevBtn.disabled = currentIndex === 0;
+      if (nextBtn) nextBtn.disabled = currentIndex >= maxIndex;
+
+      // Update dots
+      updateDots();
+    }
+
+    // Update active dot
+    function updateDots() {
+      if (!dotsContainer) return;
+
+      const dots = dotsContainer.querySelectorAll('.product-carousel__dot');
+      const activeDotIndex = Math.floor(currentIndex / slidesPerView);
+
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('product-carousel__dot--active', index === activeDotIndex);
+      });
+    }
+
+    // Go to specific slide
+    function goToSlide(index) {
+      currentIndex = Math.max(0, Math.min(index, maxIndex));
+      updateCarousel();
+    }
+
+    // Previous slide
+    function prevSlide() {
+      if (currentIndex > 0) {
+        currentIndex = Math.max(0, currentIndex - slidesPerView);
+        updateCarousel();
+      }
+    }
+
+    // Next slide
+    function nextSlide() {
+      if (currentIndex < maxIndex) {
+        currentIndex = Math.min(maxIndex, currentIndex + slidesPerView);
+        updateCarousel();
+      }
+    }
+
+    // Event listeners
+    if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+    if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+
+    // Keyboard navigation
+    carousel.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight') nextSlide();
+    });
+
+    // Touch/Swipe support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let isDragging = false;
+
+    track.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      isDragging = true;
+    }, { passive: true });
+
+    track.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      touchEndX = e.touches[0].clientX;
+    }, { passive: true });
+
+    track.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      const diff = touchStartX - touchEndX;
+      const threshold = 50;
+
+      if (diff > threshold) {
+        nextSlide();
+      } else if (diff < -threshold) {
+        prevSlide();
+      }
+    });
+
+    // Mouse drag support
+    let mouseStartX = 0;
+    let mouseDown = false;
+
+    track.addEventListener('mousedown', (e) => {
+      mouseDown = true;
+      mouseStartX = e.clientX;
+      track.style.cursor = 'grabbing';
+    });
+
+    track.addEventListener('mousemove', (e) => {
+      if (!mouseDown) return;
+      e.preventDefault();
+    });
+
+    track.addEventListener('mouseup', (e) => {
+      if (!mouseDown) return;
+      mouseDown = false;
+      track.style.cursor = 'grab';
+
+      const diff = mouseStartX - e.clientX;
+      const threshold = 50;
+
+      if (diff > threshold) {
+        nextSlide();
+      } else if (diff < -threshold) {
+        prevSlide();
+      }
+    });
+
+    track.addEventListener('mouseleave', () => {
+      mouseDown = false;
+      track.style.cursor = 'grab';
+    });
+
+    // Handle resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const newSlidesPerView = getSlidesPerView();
+        if (newSlidesPerView !== slidesPerView) {
+          slidesPerView = newSlidesPerView;
+          maxIndex = Math.max(0, totalSlides - slidesPerView);
+          currentIndex = Math.min(currentIndex, maxIndex);
+          createDots();
+          updateCarousel();
+        }
+      }, 250);
+    });
+
+    // Initialize
+    createDots();
+    updateCarousel();
+    track.style.cursor = 'grab';
+  })();
+</script>

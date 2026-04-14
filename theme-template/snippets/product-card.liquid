@@ -1,0 +1,298 @@
+{% comment %}
+  StellarLight Magic - Product Card Snippet
+  Reusable product card component for grids and sections
+
+  Parameters:
+  - product: Product object (required)
+  - show_vendor: Show vendor name (optional, default: false)
+  - show_quick_add: Show quick add button (optional, default: true)
+  - show_secondary_image: Show secondary image on hover (optional, default: true)
+{% endcomment %}
+
+{% liquid
+  assign show_vendor = show_vendor | default: false
+  assign show_quick_add = show_quick_add | default: true
+  assign show_secondary_image = show_secondary_image | default: true
+  assign first_variant = product.selected_or_first_available_variant
+%}
+
+<div class="product-card"
+     data-product-id="{{ product.id }}"
+     data-variant-id="{{ first_variant.id }}"
+     itemscope
+     itemtype="http://schema.org/Product">
+
+  <!-- Product Image -->
+  <a href="{{ product.url | within: collection }}" class="product-card__link">
+    <div class="product-card__image-wrapper">
+      {% if product.featured_image %}
+        <img src="{{ product.featured_image | img_url: '600x600' }}"
+             srcset="{{ product.featured_image | img_url: '300x300' }} 300w,
+                     {{ product.featured_image | img_url: '450x450' }} 450w,
+                     {{ product.featured_image | img_url: '600x600' }} 600w"
+             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+             alt="{{ product.featured_image.alt | default: product.title | escape }}"
+             class="product-card__image product-card__image--primary"
+             loading="lazy"
+             width="600"
+             height="600"
+             itemprop="image">
+
+        {% if show_secondary_image and product.images.size > 1 %}
+          <img src="{{ product.images[1] | img_url: '600x600' }}"
+               srcset="{{ product.images[1] | img_url: '300x300' }} 300w,
+                       {{ product.images[1] | img_url: '450x450' }} 450w,
+                       {{ product.images[1] | img_url: '600x600' }} 600w"
+               sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+               alt="{{ product.images[1].alt | default: product.title | escape }}"
+               class="product-card__image product-card__image--secondary"
+               loading="lazy"
+               width="600"
+               height="600">
+        {% endif %}
+      {% else %}
+        <div class="product-card__image--placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21,15 16,10 5,21"/>
+          </svg>
+        </div>
+      {% endif %}
+
+      <!-- Badges -->
+      <div class="product-card__badges">
+        {% if product.available == false %}
+          <span class="product-card__badge product-card__badge--soldout">Sold Out</span>
+        {% elsif product.compare_at_price > product.price %}
+          {% assign savings = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
+          <span class="product-card__badge product-card__badge--sale">-{{ savings }}%</span>
+        {% endif %}
+
+        {% for tag in product.tags %}
+          {% if tag == 'new' %}
+            <span class="product-card__badge product-card__badge--new">New</span>
+            {% break %}
+          {% elsif tag == 'best-seller' %}
+            <span class="product-card__badge product-card__badge--bestseller">Best Seller</span>
+            {% break %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- Quick Add Button -->
+      {% if show_quick_add and product.available %}
+        <button type="button"
+                class="btn btn--primary btn--sm product-card__quick-add"
+                data-variant-id="{{ first_variant.id }}"
+                aria-label="Add {{ product.title | escape }} to cart">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span>Quick Add</span>
+        </button>
+      {% endif %}
+    </div>
+  </a>
+
+  <!-- Product Content -->
+  <div class="product-card__content">
+    {% if show_vendor and product.vendor != blank %}
+      <p class="product-card__brand">{{ product.vendor }}</p>
+    {% endif %}
+
+    <h3 class="product-card__title" itemprop="name">
+      <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
+    </h3>
+
+    <!-- Price -->
+    <div class="product-card__price" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+      <meta itemprop="priceCurrency" content="{{ shop.currency }}">
+      <meta itemprop="price" content="{{ product.price | money_without_currency }}">
+      <link itemprop="availability" href="{% if product.available %}http://schema.org/InStock{% else %}http://schema.org/OutOfStock{% endif %}">
+
+      <span class="product-card__price-current">
+        {{ product.price | money }}
+      </span>
+
+      {% if product.compare_at_price > product.price %}
+        <span class="product-card__price-original">{{ product.compare_at_price | money }}</span>
+      {% endif %}
+    </div>
+
+    <!-- Color/Variant Options Preview -->
+    {% if product.has_only_default_variant == false %}
+      <div class="product-card__options">
+        {% for option in product.options %}
+          {% if option == 'Color' or option == 'Colour' %}
+            {% assign color_option = option %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+
+        {% if color_option %}
+          <div class="product-card__swatches">
+            {% assign unique_values = '' | split: '' %}
+            {% for variant in product.variants %}
+              {% assign value = variant.options | join: ' ' %}
+              {% unless unique_values contains value %}
+                {% for opt in product.options %}
+                  {% if product.options[opt] == color_option %}
+                    {% assign color_value = variant.options[forloop.index0] %}
+                    {% assign unique_values = unique_values | push: value %}
+                    <span class="product-card__swatch"
+                          style="background-color: {{ color_value | handle | replace: '-', '' }};"
+                          title="{{ color_value }}">
+                      <span class="sr-only">{{ color_value }}</span>
+                    </span>
+                  {% endif %}
+                {% endfor %}
+              {% endunless %}
+            {% endfor %}
+            {% assign unique_values_size = unique_values.size %}
+            {% if unique_values_size > 4 %}
+              <span class="product-card__swatch-more">+{{ unique_values_size | minus: 4 }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Add to Cart Button (Mobile) -->
+  {% if show_quick_add and product.available %}
+    <div class="product-card__footer">
+      <button type="button"
+              class="btn btn--primary btn--full product-card__add-to-cart"
+              data-variant-id="{{ first_variant.id }}"
+              aria-label="Add {{ product.title | escape }} to cart">
+        Add to Cart
+      </button>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+  /* Product Card Secondary Image Hover */
+  .product-card__image--secondary {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .product-card:hover .product-card__image--secondary {
+    opacity: 1;
+  }
+
+  /* Product Card Badges */
+  .product-card__badges {
+    position: absolute;
+    top: var(--space-sm);
+    left: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    z-index: 5;
+  }
+
+  /* Swatches */
+  .product-card__options {
+    margin-top: var(--space-sm);
+  }
+
+  .product-card__swatches {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .product-card__swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .product-card__swatch-more {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    margin-left: var(--space-xs);
+  }
+
+  /* List View */
+  .product-grid--list {
+    grid-template-columns: 1fr;
+  }
+
+  .product-grid--list .product-card {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--space-lg);
+  }
+
+  @media (max-width: 767px) {
+    .product-grid--list .product-card {
+      grid-template-columns: 120px 1fr;
+    }
+  }
+
+  .product-grid--list .product-card__image-wrapper {
+    aspect-ratio: 1/1;
+  }
+
+  .product-grid--list .product-card__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .product-grid--list .product-card__footer {
+    display: none;
+  }
+
+  .product-grid--list .product-card__title {
+    font-size: 18px;
+  }
+
+  .product-grid--list .product-card__price {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+  }
+
+  .product-grid--list .product-card__link {
+    display: contents;
+  }
+
+  .product-grid--list .product-card__quick-add {
+    display: flex;
+  }
+
+  /* Responsive */
+  @media (max-width: 767px) {
+    .product-card__quick-add {
+      display: none;
+    }
+
+    .product-card__footer {
+      display: block;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .product-card__footer {
+      display: none;
+    }
+  }
+</style>

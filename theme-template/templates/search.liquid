@@ -1,22 +1,905 @@
-{% paginate search.results by 10 %}
-  <form action="/search" method="get" role="search">
-    <input type="search" name="q" value="{{ search.terms | escape }}">
-    <button type="submit">search</button>
-  </form>
+{% comment %}
+  StellarLight Magic - Search Template
+  Enhanced search results page with modern design and better UX
+{% endcomment %}
 
-  {% if search.performed %}
-    {% for item in search.results %}
-      {% if item.featured_image %}
-        <a href="{{ item.url | within: collection }}" title="{{ item.title | escape }}">
-          {{ item.featured_image.src | img_url: 'medium' | img_tag: item.featured_image.alt }}
-        </a>
+{% paginate search.results by 12 %}
+
+<div class="search-page">
+  <div class="container">
+    <!-- Search Header -->
+    <div class="search-page__header">
+      <h1 class="search-page__title h1">
+        {% if search.performed %}
+          Search Results
+        {% else %}
+          Search Our Store
+        {% endif %}
+      </h1>
+
+      <!-- Search Form -->
+      <form action="{{ routes.search_url }}" method="get" class="search-page__form" role="search">
+        <div class="search-page__input-wrapper">
+          <div class="search-page__input-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <input type="search"
+                 name="q"
+                 class="search-page__input"
+                 placeholder="Search products, collections, and more..."
+                 value="{{ search.terms | escape }}"
+                 autocomplete="off"
+                 aria-label="Search">
+          {% if search.terms != blank %}
+            <a href="{{ routes.search_url }}" class="search-page__clear" aria-label="Clear search">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </a>
+          {% endif %}
+          <button type="submit" class="btn btn--primary search-page__submit">
+            Search
+          </button>
+        </div>
+
+        <!-- Filter Options -->
+        <div class="search-page__filters">
+          <label class="search-page__filter">
+            <input type="radio" name="type" value="product" {% if search.types contains 'product' or search.types == blank %}checked{% endif %}>
+            <span class="search-page__filter-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+              Products
+            </span>
+          </label>
+          <label class="search-page__filter">
+            <input type="radio" name="type" value="article" {% if search.types contains 'article' %}checked{% endif %}>
+            <span class="search-page__filter-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              Articles
+            </span>
+          </label>
+          <label class="search-page__filter">
+            <input type="radio" name="type" value="page" {% if search.types contains 'page' %}checked{% endif %}>
+            <span class="search-page__filter-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                <polyline points="13,2 13,9 20,9"/>
+              </svg>
+              Pages
+            </span>
+          </label>
+        </div>
+      </form>
+    </div>
+
+    <!-- Search Results -->
+    {% if search.performed %}
+      <div class="search-page__results-info">
+        <p class="search-page__results-count">
+          {% if search.results.size > 0 %}
+            Found <strong>{{ search.results.size }}</strong> result{{ search.results.size | pluralize: '', 's' }} for "<strong>{{ search.terms }}</strong>"
+          {% else %}
+            No results found for "<strong>{{ search.terms }}</strong>"
+          {% endif %}
+        </p>
+        {% if search.results.size > 0 %}
+          <span class="search-page__results-time">
+            Showing {{ paginate.current_offset | plus: 1 }}-{% if paginate.next %}{{ paginate.current_offset | plus: paginate.page_size }}{% else %}{{ search.results.size }}{% endif %} of {{ search.results_count }}
+          </span>
+        {% endif %}
+      </div>
+
+      {% if search.results.size > 0 %}
+        <div class="search-results-grid">
+          {% for item in search.results %}
+            {% if item.object_type == 'product' %}
+              <!-- Product Result -->
+              <div class="search-result-card search-result-card--product">
+                <a href="{{ item.url }}" class="search-result-card__link">
+                  <div class="search-result-card__image">
+                    {% if item.featured_image %}
+                      <img src="{{ item.featured_image | img_url: '400x400' }}"
+                           srcset="{{ item.featured_image | img_url: '200x200' }} 200w,
+                                   {{ item.featured_image | img_url: '300x300' }} 300w,
+                                   {{ item.featured_image | img_url: '400x400' }} 400w"
+                           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                           alt="{{ item.title | escape }}"
+                           loading="lazy">
+                    {% else %}
+                      <div class="search-result-card__placeholder">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5"/>
+                          <polyline points="21,15 16,10 5,21"/>
+                        </svg>
+                      </div>
+                    {% endif %}
+
+                    <!-- Badges -->
+                    <div class="search-result-card__badges">
+                      {% if item.available == false %}
+                        <span class="badge badge--soldout">Sold Out</span>
+                      {% elsif item.compare_at_price > item.price %}
+                        {% assign savings = item.compare_at_price | minus: item.price | times: 100 | divided_by: item.compare_at_price %}
+                        <span class="badge badge--sale">-{{ savings }}%</span>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="search-result-card__content">
+                    {% if item.vendor %}
+                      <span class="search-result-card__vendor">{{ item.vendor }}</span>
+                    {% endif %}
+                    <h3 class="search-result-card__title">{{ item.title }}</h3>
+                    <div class="search-result-card__price">
+                      <span class="search-result-card__price-current">{{ item.price | money }}</span>
+                      {% if item.compare_at_price > item.price %}
+                        <span class="search-result-card__price-original">{{ item.compare_at_price | money }}</span>
+                      {% endif %}
+                    </div>
+
+                    <!-- Quick Add -->
+                    {% if item.available %}
+                      <button type="button"
+                              class="btn btn--primary btn--sm search-result-card__quick-add"
+                              data-variant-id="{{ item.selected_or_first_available_variant.id }}"
+                              data-product-id="{{ item.id }}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                          <line x1="3" y1="6" x2="21" y2="6"/>
+                          <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                        Add to Cart
+                      </button>
+                    {% endif %}
+                  </div>
+                </a>
+              </div>
+
+            {% elsif item.object_type == 'article' %}
+              <!-- Article Result -->
+              <div class="search-result-card search-result-card--article">
+                <a href="{{ item.url }}" class="search-result-card__link">
+                  <div class="search-result-card__image">
+                    {% if item.image %}
+                      <img src="{{ item.image | img_url: '400x300' }}"
+                           alt="{{ item.title | escape }}"
+                           loading="lazy">
+                    {% else %}
+                      <div class="search-result-card__placeholder search-result-card__placeholder--article">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                          <polyline points="14,2 14,8 20,8"/>
+                          <line x1="16" y1="13" x2="8" y2="13"/>
+                          <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                      </div>
+                    {% endif %}
+                    <span class="search-result-card__type-badge">Article</span>
+                  </div>
+                  <div class="search-result-card__content">
+                    <span class="search-result-card__meta">
+                      {% if item.blog.title %}{{ item.blog.title }}{% endif %}
+                      {% if item.published_at %} · {{ item.published_at | date: '%b %d, %Y' }}{% endif %}
+                    </span>
+                    <h3 class="search-result-card__title">{{ item.title }}</h3>
+                    <p class="search-result-card__excerpt">{{ item.content | strip_html | truncate: 120 }}</p>
+                  </div>
+                </a>
+              </div>
+
+            {% else %}
+              <!-- Page Result -->
+              <div class="search-result-card search-result-card--page">
+                <a href="{{ item.url }}" class="search-result-card__link">
+                  <div class="search-result-card__image search-result-card__image--page">
+                    <div class="search-result-card__placeholder">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                        <polyline points="13,2 13,9 20,9"/>
+                      </svg>
+                    </div>
+                    <span class="search-result-card__type-badge">Page</span>
+                  </div>
+                  <div class="search-result-card__content">
+                    <h3 class="search-result-card__title">{{ item.title }}</h3>
+                    <p class="search-result-card__excerpt">{{ item.content | strip_html | truncate: 150 }}</p>
+                    <span class="search-result-card__read-more">
+                      View Page
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12,5 19,12 12,19"/>
+                      </svg>
+                    </span>
+                  </div>
+                </a>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if paginate.pages > 1 %}
+          <nav class="pagination search-page__pagination" aria-label="Search results pagination">
+            {% if paginate.previous %}
+              <a href="{{ paginate.previous.url }}" class="pagination__link" aria-label="Previous page">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15,18 9,12 15,6"/>
+                </svg>
+              </a>
+            {% endif %}
+
+            {% for part in paginate.parts %}
+              {% if part.is_link %}
+                <a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a>
+              {% elsif part.title == paginate.current_page %}
+                <span class="pagination__link pagination__link--current" aria-current="page">{{ part.title }}</span>
+              {% else %}
+                <span class="pagination__gap">{{ part.title }}</span>
+              {% endif %}
+            {% endfor %}
+
+            {% if paginate.next %}
+              <a href="{{ paginate.next.url }}" class="pagination__link" aria-label="Next page">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9,6 15,12 9,18"/>
+                </svg>
+              </a>
+            {% endif %}
+          </nav>
+        {% endif %}
+
+      {% else %}
+        <!-- No Results -->
+        <div class="search-empty">
+          <div class="search-empty__icon">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <line x1="8" y1="8" x2="11" y2="8"/>
+              <line x1="11" y1="11" x2="11" y2="14"/>
+            </svg>
+          </div>
+          <h2 class="search-empty__title h2">No Results Found</h2>
+          <p class="search-empty__text">
+            We couldn't find any results matching "{{ search.terms }}".
+            Try different keywords or browse our popular categories below.
+          </p>
+
+          <!-- Search Suggestions -->
+          <div class="search-empty__suggestions">
+            <h4 class="search-empty__heading">Popular Searches</h4>
+            <div class="search-empty__tags">
+              <a href="{{ routes.search_url }}?q=new" class="search-empty__tag">New Arrivals</a>
+              <a href="{{ routes.search_url }}?q=sale" class="search-empty__tag">Sale</a>
+              <a href="{{ routes.search_url }}?q=bestseller" class="search-empty__tag">Best Sellers</a>
+              <a href="{{ routes.search_url }}?q=collection" class="search-empty__tag">Collections</a>
+            </div>
+          </div>
+
+          <div class="search-empty__actions">
+            <a href="/collections/all" class="btn btn--primary btn--lg">Browse All Products</a>
+          </div>
+        </div>
       {% endif %}
-      <h5>{{ item.title | link_to: item.url }}</h5>
-      <p>{{ item.content | strip_html | truncatewords: 50 }}</p>
-    {% else %}
-      no results
-    {% endfor %}
-  {% endif %}
 
-  {% if paginate.pages > 1 %}{{ paginate | default_pagination }}{% endif %}
+    {% else %}
+      <!-- Initial State -->
+      <div class="search-initial">
+        <div class="search-initial__icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h2 class="search-initial__title h2">Search Our Store</h2>
+        <p class="search-initial__text">
+          Find exactly what you're looking for. Search for products, articles, and pages.
+        </p>
+
+        <!-- Popular Categories -->
+        <div class="search-initial__categories">
+          <h4 class="search-initial__heading">Popular Categories</h4>
+          <div class="search-initial__grid">
+            {% for collection in collections limit:4 %}
+              <a href="{{ collection.url }}" class="search-initial__category">
+                <div class="search-initial__category-image">
+                  {% if collection.image %}
+                    <img src="{{ collection.image | img_url: '300x200' }}" alt="{{ collection.title | escape }}" loading="lazy">
+                  {% elsif collection.products.first.featured_image %}
+                    <img src="{{ collection.products.first.featured_image | img_url: '300x200' }}" alt="{{ collection.title | escape }}" loading="lazy">
+                  {% else %}
+                    <div class="search-initial__category-placeholder">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                      </svg>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="search-initial__category-content">
+                  <h5 class="search-initial__category-title">{{ collection.title }}</h5>
+                  <span class="search-initial__category-count">{{ collection.all_products_count }} products</span>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  /* Search Page */
+  .search-page {
+    padding: var(--space-2xl) 0 var(--space-3xl);
+    min-height: 60vh;
+  }
+
+  .search-page__header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .search-page__title {
+    margin-bottom: var(--space-xl);
+  }
+
+  /* Search Form */
+  .search-page__form {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .search-page__input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--color-surface-alt);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .search-page__input-wrapper:focus-within {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.15);
+  }
+
+  .search-page__input-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    color: var(--color-gold);
+    background: var(--color-gold-light);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+  }
+
+  [data-theme="dark"] .search-page__input-icon {
+    background: rgba(212, 180, 100, 0.2);
+  }
+
+  .search-page__input {
+    flex: 1;
+    min-width: 0;
+    height: 48px;
+    padding: 0 var(--space-base);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+
+  .search-page__input::placeholder {
+    color: var(--color-text-muted);
+    font-weight: 400;
+  }
+
+  .search-page__clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: var(--color-text-muted);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+  }
+
+  .search-page__clear:hover {
+    color: var(--color-error);
+    background: rgba(198, 40, 40, 0.1);
+  }
+
+  .search-page__submit {
+    height: 48px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    .search-page__submit {
+      display: none;
+    }
+  }
+
+  /* Search Filters */
+  .search-page__filters {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    flex-wrap: wrap;
+  }
+
+  .search-page__filter {
+    cursor: pointer;
+  }
+
+  .search-page__filter input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .search-page__filter-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-base);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+  }
+
+  .search-page__filter input:checked + .search-page__filter-label {
+    color: var(--color-navy);
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+  }
+
+  [data-theme="dark"] .search-page__filter input:checked + .search-page__filter-label {
+    color: var(--color-navy);
+  }
+
+  .search-page__filter-label:hover {
+    border-color: var(--color-gold);
+  }
+
+  /* Results Info */
+  .search-page__results-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .search-page__results-count {
+    font-size: 16px;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  .search-page__results-time {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+
+  /* Search Results Grid */
+  .search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+  }
+
+  @media (min-width: 768px) {
+    .search-results-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .search-results-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Search Result Card */
+  .search-result-card {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all var(--transition-base);
+  }
+
+  .search-result-card:hover {
+    border-color: var(--color-gold);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .search-result-card__link {
+    display: block;
+  }
+
+  .search-result-card__image {
+    position: relative;
+    aspect-ratio: 1/1;
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+
+  .search-result-card--article .search-result-card__image {
+    aspect-ratio: 4/3;
+  }
+
+  .search-result-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .search-result-card:hover .search-result-card__image img {
+    transform: scale(1.05);
+  }
+
+  .search-result-card__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+  }
+
+  .search-result-card__badges {
+    position: absolute;
+    top: var(--space-sm);
+    left: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    z-index: 5;
+  }
+
+  .search-result-card__type-badge {
+    position: absolute;
+    top: var(--space-sm);
+    left: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-inverse);
+    background: var(--color-navy);
+    border-radius: var(--radius-sm);
+    z-index: 5;
+  }
+
+  .search-result-card__content {
+    padding: var(--space-base);
+  }
+
+  .search-result-card__vendor {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-gold);
+    margin-bottom: var(--space-xs);
+  }
+
+  .search-result-card__title {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-sm);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .search-result-card__meta {
+    display: block;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-xs);
+  }
+
+  .search-result-card__excerpt {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .search-result-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .search-result-card__price-current {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-gold);
+  }
+
+  .search-result-card__price-original {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+  }
+
+  .search-result-card__read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-gold);
+    margin-top: var(--space-sm);
+    transition: gap var(--transition-fast);
+  }
+
+  .search-result-card:hover .search-result-card__read-more {
+    gap: var(--space-sm);
+  }
+
+  .search-result-card__quick-add {
+    width: 100%;
+    margin-top: var(--space-sm);
+  }
+
+  /* Pagination */
+  .search-page__pagination {
+    margin-top: var(--space-2xl);
+  }
+
+  /* Empty State */
+  .search-empty,
+  .search-initial {
+    text-align: center;
+    padding: var(--space-3xl) var(--container-padding);
+  }
+
+  .search-empty__icon,
+  .search-initial__icon {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-lg);
+  }
+
+  .search-empty__title,
+  .search-initial__title {
+    margin-bottom: var(--space-sm);
+  }
+
+  .search-empty__text,
+  .search-initial__text {
+    color: var(--color-text-secondary);
+    max-width: 500px;
+    margin: 0 auto var(--space-xl);
+  }
+
+  .search-empty__suggestions,
+  .search-initial__categories {
+    margin-bottom: var(--space-xl);
+  }
+
+  .search-empty__heading,
+  .search-initial__heading {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gold);
+    margin-bottom: var(--space-base);
+  }
+
+  .search-empty__tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm);
+  }
+
+  .search-empty__tag {
+    display: inline-flex;
+    padding: var(--space-sm) var(--space-base);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+  }
+
+  .search-empty__tag:hover {
+    color: var(--color-gold);
+    border-color: var(--color-gold);
+    background: var(--color-gold-light);
+  }
+
+  [data-theme="dark"] .search-empty__tag:hover {
+    background: rgba(212, 180, 100, 0.2);
+  }
+
+  .search-empty__actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-base);
+  }
+
+  /* Initial Categories Grid */
+  .search-initial__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-base);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .search-initial__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .search-initial__category {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all var(--transition-fast);
+  }
+
+  .search-initial__category:hover {
+    border-color: var(--color-gold);
+    box-shadow: var(--shadow-md);
+  }
+
+  .search-initial__category-image {
+    aspect-ratio: 4/3;
+    background: var(--color-surface-alt);
+    overflow: hidden;
+  }
+
+  .search-initial__category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .search-initial__category:hover .search-initial__category-image img {
+    transform: scale(1.1);
+  }
+
+  .search-initial__category-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+  }
+
+  .search-initial__category-content {
+    padding: var(--space-sm);
+    text-align: left;
+  }
+
+  .search-initial__category-title {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
+  }
+
+  .search-initial__category-count {
+    font-size: 11px;
+    color: var(--color-text-muted);
+  }
+</style>
+
+<script>
+  // Quick add functionality for search results
+  document.querySelectorAll('.search-result-card__quick-add').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const variantId = btn.dataset.variantId;
+      if (!variantId) return;
+
+      btn.classList.add('btn--loading');
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: variantId,
+            quantity: 1
+          })
+        });
+
+        if (!response.ok) throw new Error('Failed to add');
+
+        // Update cart count
+        if (window.StellarLight && window.StellarLight.Cart) {
+          await window.StellarLight.Cart.updateCartCount();
+        }
+
+        // Show toast
+        if (window.StellarLight && window.StellarLight.Toast) {
+          window.StellarLight.Toast.show('Added to cart!', 'success');
+        }
+
+        // Open cart drawer
+        if (window.SearchModal) {
+          window.SearchModal.close();
+        }
+
+        // Dispatch event
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        if (window.StellarLight && window.StellarLight.Toast) {
+          window.StellarLight.Toast.show('Failed to add to cart', 'error');
+        }
+      } finally {
+        btn.classList.remove('btn--loading');
+        btn.disabled = false;
+      }
+    });
+  });
+</script>
+
 {% endpaginate %}

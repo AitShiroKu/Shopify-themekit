@@ -1,44 +1,469 @@
 <!doctype html>
-<html>
+<html lang="{{ request.locale.iso_code }}" data-theme="light">
 <head>
-  <title>{{ page_title }}</title>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="{{ page_description | escape }}">
+  <meta name="theme-color" content="#0D1B2A">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.shopify.com">
+
+  <!-- Google Fonts: Cormorant Garamond, Inter, DM Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Canonical URL -->
   <link rel="canonical" href="{{ canonical_url }}">
-  <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
-  {{ content_for_header }} <!-- Header hook for plugins -->
-  {{ 'application.css' | asset_url | stylesheet_tag }}
-  {{ 'application.js' | asset_url | script_tag }}
-</head>
-<body>
 
-  {% for link in linklists.main-menu.links %}
-    {% assign child_list_handle = link.title | handleize %}
-    {% if linklists[child_list_handle].links != blank %}
-      <a href="{{ link.url }}">{{ link.title }}</a>
-      [{% for childlink in linklists[child_list_handle].links %}
-        <a href="{{ childlink.url }}">{{ childlink.title | escape }}</a>
-      {% endfor %}]
-    {% else %}
-      <a href="{{ link.url }}">{{ link.title }}</a>
-    {% endif %}
-  {% endfor %}
-
-  <a href="/cart">cart</a>
-
-  {% if shop.customer_accounts_enabled %}
-    {% if customer %}
-      <a href="/account">account</a>
-      {{ 'log out'  | customer_logout_link }}
-    {% else %}
-      {{ 'log in ' | customer_login_link }}
-      {{ 'register' | customer_register_link }}
-    {% endif %}
+  <!-- Favicon -->
+  {% if settings.favicon != blank %}
+    <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png">
   {% endif %}
 
-  <main role="main">
+  <!-- Critical CSS Variables (inline for faster render) -->
+  <style>
+    :root {
+      /* Light Mode Colors */
+      --color-background: #FAFAF8;
+      --color-surface: #F3F1EC;
+      --color-surface-alt: #FFFFFF;
+      --color-border: #E8E4D9;
+      --color-border-subtle: rgba(232, 228, 217, 0.6);
+
+      --color-gold: #C9A84C;
+      --color-gold-light: #E8D5A0;
+      --color-gold-hover: #B89A3E;
+
+      --color-navy: #0D1B2A;
+      --color-navy-mid: #1E3A5F;
+      --color-navy-light: #2A4A6A;
+
+      --color-sky: #4A9FD4;
+      --color-sky-light: #6BB5E8;
+
+      --color-text-primary: #2D2D2D;
+      --color-text-secondary: #6B6B65;
+      --color-text-muted: #8A8A85;
+      --color-text-inverse: #F0EEE8;
+
+      --color-success: #2E7D32;
+      --color-warning: #F57C00;
+      --color-error: #C62828;
+
+      /* Typography */
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'DM Mono', 'Courier New', monospace;
+
+      /* Font Sizes */
+      --text-h1: 48px;
+      --text-h2: 32px;
+      --text-h3: 20px;
+      --text-body: 16px;
+      --text-caption: 12px;
+      --text-mono: 14px;
+
+      /* Spacing */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 12px;
+      --space-base: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-4xl: 80px;
+
+      /* Border Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+      --shadow-glow: 0 0 20px rgba(201, 168, 76, 0.3);
+
+      /* Transitions */
+      --transition-fast: 150ms ease;
+      --transition-base: 250ms ease;
+      --transition-slow: 400ms ease;
+
+      /* Container */
+      --container-max: 1280px;
+      --container-padding: 20px;
+    }
+
+    /* Dark Mode Colors */
+    [data-theme="dark"] {
+      --color-background: #0A1520;
+      --color-surface: #0D1B2A;
+      --color-surface-alt: #152238;
+      --color-border: rgba(74, 159, 212, 0.2);
+      --color-border-subtle: rgba(74, 159, 212, 0.1);
+
+      --color-gold: #D4B464;
+      --color-gold-light: #F0E4B8;
+      --color-gold-hover: #E5C575;
+
+      --color-navy: #F0EEE8;
+      --color-navy-mid: #8CB8D4;
+      --color-navy-light: #6A9BC4;
+
+      --color-sky: #4A9FD4;
+      --color-sky-light: #6BB5E8;
+
+      --color-text-primary: #F0EEE8;
+      --color-text-secondary: #8CB8D4;
+      --color-text-muted: #6A8AA8;
+      --color-text-inverse: #0D1B2A;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 30px rgba(212, 180, 100, 0.4);
+    }
+
+    /* System preference fallback */
+    @media (prefers-color-scheme: dark) {
+      [data-theme="system"] {
+        --color-background: #0A1520;
+        --color-surface: #0D1B2A;
+        --color-surface-alt: #152238;
+        --color-border: rgba(74, 159, 212, 0.2);
+        --color-border-subtle: rgba(74, 159, 212, 0.1);
+        --color-gold: #D4B464;
+        --color-gold-light: #F0E4B8;
+        --color-gold-hover: #E5C575;
+        --color-navy: #F0EEE8;
+        --color-navy-mid: #8CB8D4;
+        --color-navy-light: #6A9BC4;
+        --color-sky: #4A9FD4;
+        --color-sky-light: #6BB5E8;
+        --color-text-primary: #F0EEE8;
+        --color-text-secondary: #8CB8D4;
+        --color-text-muted: #6A8AA8;
+        --color-text-inverse: #0D1B2A;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+        --shadow-glow: 0 0 30px rgba(212, 180, 100, 0.4);
+      }
+    }
+  </style>
+
+  <title>{{ page_title }}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}</title>
+
+  {{ content_for_header }}
+  {{ 'application.css' | asset_url | stylesheet_tag }}
+
+  <!-- Open Graph Meta Tags -->
+  {% if template == 'product' %}
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="{{ product.title | escape }}">
+    <meta property="og:description" content="{{ product.description | strip_html | truncate: 200 | escape }}">
+    <meta property="og:price:amount" content="{{ product.price | money_without_currency }}">
+    <meta property="og:price:currency" content="{{ shop.currency }}">
+    {% if product.featured_image %}
+      <meta property="og:image" content="{{ product.featured_image | img_url: '1200x1200' }}">
+    {% endif %}
+  {% elsif template == 'collection' %}
+    <meta property="og:type" content="product.group">
+    <meta property="og:title" content="{{ collection.title | escape }}">
+    <meta property="og:description" content="{{ collection.description | strip_html | truncate: 200 | escape }}">
+  {% else %}
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ page_title | escape }}">
+    <meta property="og:description" content="{{ page_description | escape }}">
+  {% endif %}
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta property="og:site_name" content="{{ shop.name }}">
+
+  <!-- Theme mode initialization (prevent flash) -->
+  <script>
+    (function() {
+      const theme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+
+<body class="theme-{{ template.name | handle }}">
+  <!-- Skip to main content link for accessibility -->
+  <a href="#main-content" class="skip-link">{{ 'general.accessibility.skip_to_content' | t }}</a>
+
+  <!-- Announcement Bar -->
+  {% if settings.show_announcement_bar and settings.announcement_text != blank %}
+    <div class="announcement-bar" role="banner">
+      <div class="container">
+        <p class="announcement-bar__text">
+          {% if settings.announcement_link != blank %}
+            <a href="{{ settings.announcement_link }}" class="announcement-bar__link">
+              {{ settings.announcement_text }}
+            </a>
+          {% else %}
+            {{ settings.announcement_text }}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Header -->
+  <header class="header" role="banner">
+    <div class="container header__container">
+      <!-- Mobile Menu Toggle -->
+      <button class="header__menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+        <span class="hamburger">
+          <span class="hamburger__line"></span>
+          <span class="hamburger__line"></span>
+          <span class="hamburger__line"></span>
+        </span>
+      </button>
+
+      <!-- Logo -->
+      <div class="header__logo">
+        {% if settings.logo != blank %}
+          <a href="{{ routes.root_url }}" class="header__logo-link">
+            <img src="{{ settings.logo | img_url: 'x60' }}"
+                 alt="{{ settings.logo.alt | default: shop.name | escape }}"
+                 class="header__logo-image"
+                 width="{{ settings.logo.width }}"
+                 height="{{ settings.logo.height }}">
+          </a>
+        {% else %}
+          <a href="{{ routes.root_url }}" class="header__logo-text">
+            <span class="header__logo-brand">{{ shop.name }}</span>
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Main Navigation -->
+      <nav class="header__nav" role="navigation" aria-label="Main navigation">
+        <ul class="nav-list">
+          {% for link in linklists.main-menu.links %}
+            {% assign child_list_handle = link.title | handleize %}
+            {% if linklists[child_list_handle].links != blank %}
+              <li class="nav-list__item nav-list__item--dropdown">
+                <a href="{{ link.url }}" class="nav-list__link" aria-haspopup="true" aria-expanded="false">
+                  {{ link.title }}
+                  <svg class="nav-list__chevron" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                    <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+                <ul class="nav-dropdown" role="menu">
+                  {% for childlink in linklists[child_list_handle].links %}
+                    <li class="nav-dropdown__item" role="none">
+                      <a href="{{ childlink.url }}" class="nav-dropdown__link" role="menuitem">
+                        {{ childlink.title | escape }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% else %}
+              <li class="nav-list__item">
+                <a href="{{ link.url }}" class="nav-list__link">{{ link.title }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header__actions">
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" aria-label="Toggle theme" type="button">
+          <svg class="theme-toggle__icon theme-toggle__icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="theme-toggle__icon theme-toggle__icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Search -->
+        <button type="button" class="header__action-link" aria-label="Search" data-search-toggle>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+
+        <!-- Account -->
+        {% if shop.customer_accounts_enabled %}
+          {% if customer %}
+            <a href="{{ routes.account_url }}" class="header__action-link" aria-label="Account">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </a>
+          {% else %}
+            <a href="{{ routes.login_url }}" class="header__action-link" aria-label="Log in">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </a>
+          {% endif %}
+        {% endif %}
+
+        <!-- Cart -->
+        <a href="{{ routes.cart_url }}" class="header__action-link header__cart-link" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="header__cart-count{% if cart.item_count == 0 %} header__cart-count--hidden{% endif %}">
+            {{ cart.item_count }}
+          </span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="mobile-menu__overlay"></div>
+    <div class="mobile-menu__content">
+      <div class="mobile-menu__header">
+        <span class="mobile-menu__title">Menu</span>
+        <button class="mobile-menu__close" aria-label="Close menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <nav class="mobile-menu__nav">
+        <ul class="mobile-menu__list">
+          {% for link in linklists.main-menu.links %}
+            <li class="mobile-menu__item">
+              <a href="{{ link.url }}" class="mobile-menu__link">{{ link.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="mobile-menu__divider"></div>
+        {% if shop.customer_accounts_enabled %}
+          {% if customer %}
+            <a href="{{ routes.account_url }}" class="mobile-menu__link">Account</a>
+            <a href="{{ routes.logout_url }}" class="mobile-menu__link">Log out</a>
+          {% else %}
+            <a href="{{ routes.login_url }}" class="mobile-menu__link">Log in</a>
+            <a href="{{ routes.register_url }}" class="mobile-menu__link">Register</a>
+          {% endif %}
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main id="main-content" class="main-content" role="main">
     {{ content_for_layout }}
   </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+        <!-- Footer Brand -->
+        <div class="footer__brand">
+          <a href="{{ routes.root_url }}" class="footer__logo">
+            {% if settings.logo != blank %}
+              <img src="{{ settings.logo | img_url: 'x40' }}" alt="{{ shop.name | escape }}">
+            {% else %}
+              <span class="footer__logo-text">{{ shop.name }}</span>
+            {% endif %}
+          </a>
+          <p class="footer__tagline">{{ settings.footer_tagline | default: "Premium quality products for the modern lifestyle." }}</p>
+        </div>
+
+        <!-- Footer Navigation -->
+        <div class="footer__nav">
+          <h4 class="footer__heading">Shop</h4>
+          <ul class="footer__list">
+            {% for link in linklists.footer.links limit:5 %}
+              <li><a href="{{ link.url }}" class="footer__link">{{ link.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="footer__nav">
+          <h4 class="footer__heading">Company</h4>
+          <ul class="footer__list">
+            <li><a href="{{ routes.root_url }}pages/about" class="footer__link">About Us</a></li>
+            <li><a href="{{ routes.root_url }}pages/contact" class="footer__link">Contact</a></li>
+            <li><a href="{{ routes.root_url }}pages/faq" class="footer__link">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__nav">
+          <h4 class="footer__heading">Connect</h4>
+          <ul class="footer__list">
+            {% if settings.social_instagram != blank %}
+              <li><a href="{{ settings.social_instagram }}" class="footer__link" target="_blank" rel="noopener">Instagram</a></li>
+            {% endif %}
+            {% if settings.social_facebook != blank %}
+              <li><a href="{{ settings.social_facebook }}" class="footer__link" target="_blank" rel="noopener">Facebook</a></li>
+            {% endif %}
+            {% if settings.social_twitter != blank %}
+              <li><a href="{{ settings.social_twitter }}" class="footer__link" target="_blank" rel="noopener">Twitter</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p class="footer__copyright">
+          &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.
+        </p>
+        <div class="footer__payments">
+          {% for type in shop.enabled_payment_types %}
+            <span class="footer__payment-icon">{{ type | payment_type_svg_tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Overlay for modals -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Cart Drawer -->
+  {% render 'cart-drawer' %}
+
+  <!-- Search Modal -->
+  {% render 'search-modal' %}
+
+  <!-- Theme Scripts -->
+  {{ 'application.js' | asset_url | script_tag }}
+
+  <!-- Quick View Modal Template -->
+  <template id="quick-view-template">
+    <div class="quick-view-modal" role="dialog" aria-modal="true">
+      <button class="quick-view-modal__close" aria-label="Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div class="quick-view-modal__content"></div>
+    </div>
+  </template>
 </body>
 </html>
