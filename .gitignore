@@ -16,3 +16,4 @@ docs/.jekyll-metadata
 
 # created when using mitm_proxy
 themekit_dump
+*.zip
