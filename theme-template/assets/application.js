@@ -91,55 +91,61 @@
   // =====================================================
 
   const ThemeToggle = {
+    order: ["system", "light", "dark"],
+    mq: null,
+
     init() {
-      this.toggle = $(".theme-toggle");
+      this.toggle = $("[data-theme-toggle]") || $(".theme-toggle");
       if (!this.toggle) return;
 
-      this.icon = this.toggle.querySelector(".theme-toggle__icon");
+      this.mq = window.matchMedia("(prefers-color-scheme: dark)");
+      const stored = (() => {
+        try { return localStorage.getItem("theme"); } catch (e) { return null; }
+      })();
+      this.current = stored || document.documentElement.getAttribute("data-theme") || "system";
+      this.sync(this.current);
       this.bindEvents();
     },
 
     bindEvents() {
-      this.toggle?.addEventListener("click", () => this.toggleTheme());
+      this.toggle.addEventListener("click", () => {
+        const next = this.order[(this.order.indexOf(this.current) + 1) % this.order.length];
+        this.current = next;
+        try { localStorage.setItem("theme", next); } catch (e) {}
+        this.sync(next);
+        this.announce(next);
+      });
 
-      // Listen for system preference changes
-      window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (e) => {
-          const currentTheme = localStorage.getItem("theme");
-          if (!currentTheme || currentTheme === "system") {
-            this.setTheme(e.matches ? "dark" : "light");
-          }
-        });
+      this.mq.addEventListener && this.mq.addEventListener("change", () => {
+        if (this.current === "system") this.sync("system");
+      });
     },
 
-    toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      this.setTheme(newTheme);
+    resolve(mode) {
+      return mode === "dark" || (mode === "system" && this.mq.matches) ? "dark" : "light";
     },
 
-    setTheme(theme) {
-      document.documentElement.setAttribute("data-theme", theme);
-      localStorage.setItem("theme", theme);
+    sync(mode) {
+      const root = document.documentElement;
+      const dark = this.resolve(mode) === "dark";
+      root.setAttribute("data-theme", mode);
+      root.classList.toggle("is-dark", dark);
+      root.style.colorScheme = dark ? "dark" : "light";
+      this.toggle.setAttribute("data-mode", mode);
+      this.toggle.setAttribute("aria-label", `Theme: ${mode} — click to change`);
 
-      // Update meta theme-color for mobile browsers
       const metaTheme = $('meta[name="theme-color"]');
-      if (metaTheme) {
-        metaTheme.setAttribute(
-          "content",
-          theme === "dark" ? "#0D1B2A" : "#FAFAF8",
-        );
-      }
+      if (metaTheme) metaTheme.setAttribute("content", dark ? "#0A1520" : "#FAFAF8");
+    },
 
-      // Announce theme change for screen readers
-      const announcement = document.createElement("div");
-      announcement.setAttribute("role", "status");
-      announcement.setAttribute("aria-live", "polite");
-      announcement.className = "sr-only";
-      announcement.textContent = `Theme changed to ${theme} mode`;
-      document.body.appendChild(announcement);
-      setTimeout(() => announcement.remove(), 1000);
+    announce(mode) {
+      const a = document.createElement("div");
+      a.setAttribute("role", "status");
+      a.setAttribute("aria-live", "polite");
+      a.className = "sr-only";
+      a.textContent = `Theme changed to ${mode} mode`;
+      document.body.appendChild(a);
+      setTimeout(() => a.remove(), 1000);
     },
   };
 

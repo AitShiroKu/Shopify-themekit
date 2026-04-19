@@ -3,6 +3,74 @@
     "404": {
       "title": "Not found",
       "subtext_html": "The page you were looking for does not exist"
+    },
+    "accessibility": {
+      "skip_to_content": "Skip to content",
+      "close": "Close",
+      "menu": "Menu",
+      "search": "Search",
+      "cart": "Cart",
+      "account": "Account",
+      "previous_image": "Previous image",
+      "next_image": "Next image",
+      "theme_toggle": "Toggle colour theme"
+    },
+    "search": {
+      "placeholder": "Search products",
+      "no_results": "No results found"
+    },
+    "newsletter": {
+      "placeholder": "Enter your email",
+      "submit": "Subscribe"
+    }
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart",
+      "sold_out": "Sold out",
+      "unavailable": "Unavailable",
+      "quantity": "Quantity",
+      "sku": "SKU",
+      "vendor": "Brand",
+      "description": "Description",
+      "details": "Details",
+      "shipping": "Shipping & returns",
+      "share": "Share",
+      "save": "Save"
+    }
+  },
+  "cart": {
+    "general": {
+      "title": "Cart",
+      "empty": "Your cart is empty",
+      "continue_shopping": "Continue shopping",
+      "subtotal": "Subtotal",
+      "checkout": "Checkout",
+      "remove": "Remove"
+    }
+  },
+  "customer": {
+    "login_page": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "forgot_password": "Forgot your password?",
+      "create_account": "Create account"
+    },
+    "register": {
+      "title": "Create account",
+      "first_name": "First name",
+      "last_name": "Last name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create"
+    },
+    "account": {
+      "title": "My account",
+      "orders": "Orders",
+      "addresses": "Addresses",
+      "logout": "Log out"
     }
   }
 }

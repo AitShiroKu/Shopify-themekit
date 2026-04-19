@@ -1,10 +1,221 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Themekit template theme",
-    "theme_version": "1.0.0",
-    "theme_author": "Shopify",
+    "theme_name": "StellarLight Magic",
+    "theme_version": "1.4.0",
+    "theme_author": "StellarLight Studio",
     "theme_documentation_url": "https://github.com/Shopify/themekit",
     "theme_support_url": "https://github.com/Shopify/themekit/issues"
+  },
+  {
+    "name": "Colors — Light Mode",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_background_light",
+        "label": "Background",
+        "default": "#FAFAF8"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_light",
+        "label": "Surface",
+        "default": "#F3F1EC"
+      },
+      {
+        "type": "color",
+        "id": "color_text_light",
+        "label": "Text",
+        "default": "#1A1A1A"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_light",
+        "label": "Accent (gold)",
+        "default": "#B8923A"
+      },
+      {
+        "type": "color",
+        "id": "color_navy_light",
+        "label": "Structural (navy)",
+        "default": "#0D1B2A"
+      }
+    ]
+  },
+  {
+    "name": "Colors — Dark Mode",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_background_dark",
+        "label": "Background",
+        "default": "#070F1A"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_dark",
+        "label": "Surface",
+        "default": "#0D1B2A"
+      },
+      {
+        "type": "color",
+        "id": "color_text_dark",
+        "label": "Text",
+        "default": "#F3F1EA"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_dark",
+        "label": "Accent (gold)",
+        "default": "#E4C275"
+      }
+    ]
+  },
+  {
+    "name": "Theme Mode",
+    "settings": [
+      {
+        "type": "select",
+        "id": "default_theme_mode",
+        "label": "Default colour mode",
+        "options": [
+          { "value": "system", "label": "Match system" },
+          { "value": "light", "label": "Light" },
+          { "value": "dark", "label": "Dark" }
+        ],
+        "default": "system"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_theme_toggle",
+        "label": "Show theme toggle in header",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "font_heading",
+        "label": "Heading font",
+        "default": "cormorant_garamond_n4"
+      },
+      {
+        "type": "font_picker",
+        "id": "font_body",
+        "label": "Body font",
+        "default": "inter_n4"
+      }
+    ]
+  },
+  {
+    "name": "Branding",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "32×32 PNG"
+      },
+      {
+        "type": "text",
+        "id": "footer_tagline",
+        "label": "Footer tagline",
+        "default": "Premium quality products for the modern lifestyle."
+      }
+    ]
+  },
+  {
+    "name": "Announcement Bar",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_announcement_bar",
+        "label": "Show announcement bar",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "announcement_text",
+        "label": "Announcement text",
+        "default": "Free shipping on orders over $50"
+      },
+      {
+        "type": "url",
+        "id": "announcement_link",
+        "label": "Announcement link"
+      }
+    ]
+  },
+  {
+    "name": "Product Page",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "pdp_show_breadcrumbs",
+        "label": "Show breadcrumbs",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "pdp_show_rating",
+        "label": "Show rating stars",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "pdp_show_trust_row",
+        "label": "Show trust badges (shipping · returns · secure)",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "pdp_show_highlights",
+        "label": "Show highlights grid",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "pdp_image_zoom",
+        "label": "Enable hover zoom on product image",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "pdp_related_count",
+        "label": "Related products count",
+        "min": 0,
+        "max": 8,
+        "step": 2,
+        "default": 4
+      }
+    ]
+  },
+  {
+    "name": "Social",
+    "settings": [
+      {
+        "type": "url",
+        "id": "social_instagram",
+        "label": "Instagram URL"
+      },
+      {
+        "type": "url",
+        "id": "social_facebook",
+        "label": "Facebook URL"
+      },
+      {
+        "type": "url",
+        "id": "social_twitter",
+        "label": "X / Twitter URL"
+      }
+    ]
   }
 ]
