@@ -1,0 +1,50 @@
+{% comment %} Newsletter signup — submits to Shopify customer form with newsletter tag. {% endcomment %}
+
+<section class="newsletter-section" aria-labelledby="newsletter-heading-{{ section.id }}">
+  <div class="container">
+    <div class="newsletter-section__content">
+      {% if section.settings.overline != blank %}
+        <span class="section__overline">{{ section.settings.overline }}</span>
+      {% endif %}
+      <h2 class="newsletter-section__title h2" id="newsletter-heading-{{ section.id }}">{{ section.settings.heading }}</h2>
+      {% if section.settings.text != blank %}
+        <p class="newsletter-section__text">{{ section.settings.text }}</p>
+      {% endif %}
+      {% form 'customer', class: 'newsletter-form' %}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <div class="newsletter-form__input-group">
+          <input type="email" name="contact[email]" class="form-input newsletter-form__input"
+                 placeholder="{{ section.settings.placeholder }}" required aria-label="Email address">
+          <button type="submit" class="btn btn--primary newsletter-form__button">{{ section.settings.button_label }}</button>
+        </div>
+        {% if form.posted_successfully? %}
+          <p class="newsletter-section__disclaimer">{{ section.settings.success_message }}</p>
+        {% elsif form.errors %}
+          <p class="newsletter-section__disclaimer">{{ form.errors | default_errors }}</p>
+        {% else %}
+          {% if section.settings.disclaimer != blank %}
+            <p class="newsletter-section__disclaimer">{{ section.settings.disclaimer }}</p>
+          {% endif %}
+        {% endif %}
+      {% endform %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "settings": [
+    { "type": "text", "id": "overline", "label": "Overline", "default": "Stay Connected" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Join Our Newsletter" },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "Subscribe to receive updates on new arrivals, special offers, and exclusive content." },
+    { "type": "text", "id": "placeholder", "label": "Email placeholder", "default": "Enter your email" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Subscribe" },
+    { "type": "textarea", "id": "disclaimer", "label": "Disclaimer", "default": "By subscribing, you agree to our Privacy Policy and consent to receive updates." },
+    { "type": "text", "id": "success_message", "label": "Success message", "default": "Thanks for subscribing!" }
+  ],
+  "presets": [
+    { "name": "Newsletter", "category": "Homepage" }
+  ]
+}
+{% endschema %}

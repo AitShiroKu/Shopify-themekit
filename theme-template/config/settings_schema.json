@@ -100,13 +100,13 @@
         "type": "font_picker",
         "id": "font_heading",
         "label": "Heading font",
-        "default": "cormorant_garamond_n4"
+        "default": "fraunces_n5"
       },
       {
         "type": "font_picker",
         "id": "font_body",
         "label": "Body font",
-        "default": "inter_n4"
+        "default": "plus_jakarta_sans_n4"
       }
     ]
   },

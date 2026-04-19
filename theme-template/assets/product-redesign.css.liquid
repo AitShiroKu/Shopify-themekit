@@ -763,10 +763,16 @@
   overflow: hidden;
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 6px;
-  transition: border-color var(--transition-base);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
-.pcard:hover .pcard__media { border-color: var(--color-border-strong); }
+.pcard:hover .pcard__media {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.pcard--placeholder .pcard__media { display: flex; align-items: center; justify-content: center; }
+.pcard__placeholder-svg { width: 80%; height: 80%; opacity: 0.5; color: var(--color-text-muted); }
 
 .pcard__media-link {
   display: block;
