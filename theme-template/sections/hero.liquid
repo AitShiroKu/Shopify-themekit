@@ -1,4 +1,4 @@
-{% comment %} Hero banner with editable heading, subheading and dual CTAs. {% endcomment %}
+{% comment %} Hero banner with editable heading, subheading and product search. {% endcomment %}
 
 <section class="hero hero--full" aria-labelledby="hero-heading-{{ section.id }}">
   {% if section.settings.background_image %}
@@ -25,19 +25,38 @@
     {% if section.settings.description != blank %}
       <p class="hero__description">{{ section.settings.description }}</p>
     {% endif %}
-    <div class="hero__buttons">
-      {% if section.settings.primary_button_label != blank %}
-        <a href="{{ section.settings.primary_button_url | default: '/collections/all' }}" class="btn btn--primary btn--lg">
-          {{ section.settings.primary_button_label }}
-        </a>
-      {% endif %}
-      {% if section.settings.secondary_button_label != blank %}
-        <a href="{{ section.settings.secondary_button_url | default: '#featured-products' }}" class="btn btn--outline-gold btn--lg">
-          {{ section.settings.secondary_button_label }}
-        </a>
-      {% endif %}
-    </div>
+
+    <form action="{{ routes.search_url }}" method="get" role="search" class="hero__search" aria-label="Search products">
+      <input type="hidden" name="type" value="product">
+      <input type="hidden" name="options[prefix]" value="last">
+      <svg class="hero__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <line x1="20" y1="20" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="search"
+        name="q"
+        class="hero__search-input"
+        placeholder="{{ section.settings.search_placeholder }}"
+        aria-label="Search products"
+        autocomplete="off">
+      <button type="submit" class="hero__search-submit">
+        {{ section.settings.search_button_label }}
+        <span aria-hidden="true">→</span>
+      </button>
+    </form>
   </div>
+
+  {% if section.settings.show_scroll_hint %}
+    <a href="#featured-products" class="hero__scroll" aria-label="Scroll down to featured products">
+      <span class="hero__scroll-label">{{ section.settings.scroll_hint_label }}</span>
+      <span class="hero__scroll-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </span>
+    </a>
+  {% endif %}
 </section>
 
 {% schema %}
@@ -49,10 +68,12 @@
     { "type": "text", "id": "overline", "label": "Overline", "default": "Welcome to" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "StellarLight Magic" },
     { "type": "textarea", "id": "description", "label": "Description", "default": "Discover premium products crafted with excellence. Experience the perfect blend of quality and style." },
-    { "type": "text", "id": "primary_button_label", "label": "Primary button label", "default": "Shop Now" },
-    { "type": "url", "id": "primary_button_url", "label": "Primary button link" },
-    { "type": "text", "id": "secondary_button_label", "label": "Secondary button label", "default": "View Collection" },
-    { "type": "url", "id": "secondary_button_url", "label": "Secondary button link" }
+    { "type": "header", "content": "Search" },
+    { "type": "text", "id": "search_placeholder", "label": "Search placeholder", "default": "What are you looking for today?" },
+    { "type": "text", "id": "search_button_label", "label": "Search button label", "default": "Search" },
+    { "type": "header", "content": "Scroll hint" },
+    { "type": "checkbox", "id": "show_scroll_hint", "label": "Show scroll-down hint", "default": true },
+    { "type": "text", "id": "scroll_hint_label", "label": "Scroll hint label", "default": "Scroll to explore" }
   ],
   "presets": [
     { "name": "Hero", "category": "Homepage" }

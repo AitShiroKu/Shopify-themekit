@@ -1,0 +1,131 @@
+{% comment %}
+  Random products — pulls a larger pool server-side and shuffles client-side
+  so each visit shows a different mix. Falls back to sequential order if JS
+  is disabled.
+{% endcomment %}
+
+{% assign source = collections[section.settings.collection] %}
+{% if source == blank or source.products.size == 0 %}
+  {% assign source = collections.all %}
+{% endif %}
+
+{% assign count = section.settings.product_count %}
+{% assign pool_size = count | times: 4 %}
+{% if pool_size > 50 %}{% assign pool_size = 50 %}{% endif %}
+{% if source.products.size < pool_size %}{% assign pool_size = source.products.size %}{% endif %}
+
+<section class="section random-products" aria-labelledby="random-heading-{{ section.id }}">
+  <div class="container">
+    <div class="section__header">
+      {% if section.settings.overline != blank %}
+        <span class="section__overline">{{ section.settings.overline }}</span>
+      {% endif %}
+      <h2 class="section__title h2" id="random-heading-{{ section.id }}">{{ section.settings.heading }}</h2>
+      {% if section.settings.description != blank %}
+        <p class="section__description">{{ section.settings.description }}</p>
+      {% endif %}
+    </div>
+
+    <div class="random-products__grid"
+         id="RandomProducts-{{ section.id }}"
+         data-random-products
+         data-count="{{ count }}">
+      {% if source.products.size > 0 %}
+        {% for product in source.products limit: pool_size %}
+          <div class="random-products__item" data-random-item>
+            {% render 'product-card', product: product %}
+          </div>
+        {% endfor %}
+      {% else %}
+        {% for i in (1..4) %}
+          <div class="random-products__item" data-random-item>
+            <div class="pcard pcard--placeholder">
+              <div class="pcard__media">
+                {{ 'product-' | append: i | placeholder_svg_tag: 'pcard__placeholder-svg' }}
+              </div>
+              <div class="pcard__body">
+                <p class="pcard__title">Your product name</p>
+                <p class="pcard__price">$0.00</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    {% if section.settings.show_refresh %}
+      <div class="random-products__actions">
+        <button type="button" class="btn btn--pink random-products__refresh" data-random-refresh aria-label="{{ section.settings.refresh_label }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          <span>{{ section.settings.refresh_label }}</span>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<script>
+  (function() {
+    var grid = document.getElementById('RandomProducts-{{ section.id }}');
+    if (!grid) return;
+
+    var count = parseInt(grid.dataset.count, 10) || 8;
+
+    function shuffle(arr) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+      }
+      return arr;
+    }
+
+    function render() {
+      var items = Array.prototype.slice.call(grid.querySelectorAll('[data-random-item]'));
+      shuffle(items);
+      items.forEach(function(el, idx) {
+        if (idx < count) {
+          el.style.display = '';
+          grid.appendChild(el);
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    render();
+
+    var refreshBtn = grid.parentElement.querySelector('[data-random-refresh]');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', function() {
+        grid.classList.add('random-products__grid--refreshing');
+        setTimeout(function() {
+          render();
+          grid.classList.remove('random-products__grid--refreshing');
+        }, 220);
+      });
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Random picks",
+  "settings": [
+    { "type": "text", "id": "overline", "label": "Overline", "default": "Just For You" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "You Might Also Love" },
+    { "type": "textarea", "id": "description", "label": "Description", "default": "A fresh handful from the shop — refresh to see something new." },
+    { "type": "collection", "id": "collection", "label": "Source collection (defaults to all)" },
+    { "type": "range", "id": "product_count", "label": "Products to show", "min": 4, "max": 12, "step": 2, "default": 8 },
+    { "type": "checkbox", "id": "show_refresh", "label": "Show refresh button", "default": true },
+    { "type": "text", "id": "refresh_label", "label": "Refresh button label", "default": "Shuffle" }
+  ],
+  "presets": [
+    { "name": "Random picks", "category": "Homepage" }
+  ]
+}
+{% endschema %}
