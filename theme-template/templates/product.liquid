@@ -158,15 +158,21 @@
 
                   <div class="pdp__option-values {% if is_color %}pdp__option-values--swatch{% endif %}">
                     {% for value in option.values %}
-                      {% assign variant = product.variants | where: option.name, value | first %}
+                      {% assign value_available = false %}
+                      {% for v in product.variants %}
+                        {% if v.available and v.options contains value %}
+                          {% assign value_available = true %}
+                          {% break %}
+                        {% endif %}
+                      {% endfor %}
                       {% assign checked = false %}
                       {% if current_variant.options contains value %}{% assign checked = true %}{% endif %}
 
                       <button type="button"
-                              class="{% if is_color %}pdp__swatch{% else %}pdp__pill{% endif %}{% if checked %} is-active{% endif %}{% unless variant.available %} is-unavailable{% endunless %}"
+                              class="{% if is_color %}pdp__swatch{% else %}pdp__pill{% endif %}{% if checked %} is-active{% endif %}{% unless value_available %} is-unavailable{% endunless %}"
                               data-option-value="{{ value | escape }}"
                               {% if is_color %}style="--swatch: {{ value | handle | replace: '-', '' }};"{% endif %}
-                              {% unless variant.available %}aria-disabled="true"{% endunless %}>
+                              {% unless value_available %}aria-disabled="true"{% endunless %}>
                         {% if is_color %}
                           <span class="pdp__swatch-dot" aria-hidden="true"></span>
                           <span class="sr-only">{{ value }}</span>
@@ -451,6 +457,28 @@
         var label = group.querySelector('[data-option-selected]');
         var active = group.querySelector('.is-active');
         if (label && active) label.textContent = active.dataset.optionValue;
+      });
+      recomputeAvailability(values);
+    }
+
+    function recomputeAvailability(selected) {
+      optionGroups.forEach(function(group, groupIdx) {
+        group.querySelectorAll('.pdp__pill, .pdp__swatch').forEach(function(btn) {
+          var val = btn.dataset.optionValue;
+          var isAvailable = variants.some(function(v) {
+            if (!v.available) return false;
+            if (v.options[groupIdx] !== val) return false;
+            return selected.every(function(sel, i) {
+              return i === groupIdx || !sel || v.options[i] === sel;
+            });
+          });
+          btn.classList.toggle('is-unavailable', !isAvailable);
+          if (isAvailable) {
+            btn.removeAttribute('aria-disabled');
+          } else {
+            btn.setAttribute('aria-disabled', 'true');
+          }
+        });
       });
     }
 

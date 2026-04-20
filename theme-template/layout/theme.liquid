@@ -128,13 +128,13 @@
       --color-structural-border: rgba(201, 168, 76, 0.18);
     }
 
-    /* Dark Mode Colors — moe night: deep plum-navy with pink bloom */
+    /* Dark Mode Colors — moe night: deep midnight navy with pink bloom */
     :root.is-dark,
     [data-theme="dark"] {
-      --color-background: #1A1028;
-      --color-surface: #261839;
-      --color-surface-alt: #2F1F45;
-      --color-surface-raised: #3A2854;
+      --color-background: #0D1B2E;
+      --color-surface: #162A42;
+      --color-surface-alt: #1D3553;
+      --color-surface-raised: #264366;
       --color-border: rgba(255, 181, 194, 0.18);
       --color-border-strong: rgba(255, 181, 194, 0.36);
       --color-border-subtle: rgba(255, 181, 194, 0.08);
@@ -165,10 +165,10 @@
     /* System preference — resolves when data-theme="system" */
     @media (prefers-color-scheme: dark) {
       [data-theme="system"] {
-        --color-background: #1A1028;
-        --color-surface: #261839;
-        --color-surface-alt: #2F1F45;
-        --color-surface-raised: #3A2854;
+        --color-background: #0D1B2E;
+        --color-surface: #162A42;
+        --color-surface-alt: #1D3553;
+        --color-surface-raised: #264366;
         --color-border: rgba(255, 181, 194, 0.18);
         --color-border-strong: rgba(255, 181, 194, 0.36);
         --color-border-subtle: rgba(255, 181, 194, 0.08);
@@ -493,8 +493,8 @@
   <!-- Overlay for modals -->
   <div class="overlay" id="overlay"></div>
 
-  <!-- Cart Drawer -->
-  {% render 'cart-drawer' %}
+  <!-- Cart Drawer (section so Section Rendering API can refresh it) -->
+  {% section 'cart-drawer' %}
 
   <!-- Search Modal -->
   {% render 'search-modal' %}

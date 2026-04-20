@@ -280,18 +280,15 @@
     async refresh() {
       try {
         const response = await fetch("/?section_id=cart-drawer");
-        if (response.ok) {
-          const html = await response.text();
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, "text/html");
-          const content = $(".cart-drawer__content", doc);
+        if (!response.ok) return;
 
-          if (content && this.drawer) {
-            const drawerContent = $(".cart-drawer__content", this.drawer);
-            if (drawerContent) {
-              drawerContent.innerHTML = content.innerHTML;
-            }
-          }
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const fresh = $(".cart-drawer", doc);
+
+        if (fresh && this.drawer) {
+          this.drawer.innerHTML = fresh.innerHTML;
         }
       } catch (error) {
         console.error("Error refreshing cart drawer:", error);
@@ -406,7 +403,7 @@
 
   const ProductPage = {
     init() {
-      this.container = $(".product");
+      this.container = $(".pdp") || $(".product");
       if (!this.container) return;
 
       this.initGallery();
@@ -646,36 +643,36 @@
 
   const ProductCards = {
     init() {
-      const cards = $$(".product-card");
+      const cards = $$(".pcard, .product-card");
 
       cards.forEach((card) => {
-        const quickAddBtn = $(".product-card__quick-add", card);
+        const quickAddBtn = $(
+          ".pcard__quick, .product-card__quick-add",
+          card,
+        );
         const addToCartBtn = $(".product-card__add-to-cart", card);
 
         quickAddBtn?.addEventListener("click", (e) => {
           e.preventDefault();
-          this.quickAdd(card);
+          this.quickAdd(card, quickAddBtn);
         });
 
         addToCartBtn?.addEventListener("click", (e) => {
           e.preventDefault();
-          this.quickAdd(card);
+          this.quickAdd(card, addToCartBtn);
         });
       });
     },
 
-    async quickAdd(card) {
-      const variantId = card.dataset.variantId;
+    async quickAdd(card, btn) {
+      const variantId =
+        btn?.dataset.variantId || card.dataset.variantId;
 
       if (!variantId) {
         Toast.show("Product unavailable", "error");
         return;
       }
 
-      const btn = $(
-        ".product-card__quick-add, .product-card__add-to-cart",
-        card,
-      );
       if (btn) {
         btn.classList.add("btn--loading");
         btn.disabled = true;

@@ -564,23 +564,19 @@ p {
 }
 
 .theme-toggle__icon {
+  display: none;
   transition: opacity var(--transition-fast), transform var(--transition-base);
 }
 
-.theme-toggle__icon--sun {
-  display: none;
-}
-
-.theme-toggle__icon--moon {
+.theme-toggle[data-mode="light"] .theme-toggle__icon--sun,
+.theme-toggle[data-mode="dark"] .theme-toggle__icon--moon,
+.theme-toggle[data-mode="system"] .theme-toggle__icon--system {
   display: block;
 }
 
-[data-theme="dark"] .theme-toggle__icon--sun {
+/* Fallback before JS sets data-mode */
+.theme-toggle:not([data-mode]) .theme-toggle__icon--system {
   display: block;
-}
-
-[data-theme="dark"] .theme-toggle__icon--moon {
-  display: none;
 }
 
 /* =====================================================
@@ -2366,9 +2362,19 @@ p {
   color: var(--color-gold);
   background: var(--color-gold-light);
   border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.value-card__icon--image { padding: 0; background: transparent; }
+.value-card__icon--image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-full);
 }
 [data-theme="dark"] .value-card__icon,
 :root.is-dark .value-card__icon { background: rgba(212, 180, 100, 0.2); }
+[data-theme="dark"] .value-card__icon--image,
+:root.is-dark .value-card__icon--image { background: transparent; }
 .value-card__title { font-size: 18px; font-weight: 600; margin-bottom: var(--space-sm); }
 .value-card__text { font-size: 14px; color: var(--color-text-secondary); margin: 0; }
 
