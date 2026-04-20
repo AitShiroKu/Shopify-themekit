@@ -106,14 +106,13 @@
 
           <h1 class="pdp__title" itemprop="name">{{ product.title }}</h1>
 
-          <div class="pdp__meta-row">
-            <div class="pdp__rating" aria-label="4.8 out of 5 stars">
-              {% for i in (1..5) %}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              {% endfor %}
-              <span class="pdp__rating-text">4.8 · <a href="#pdp-reviews">124 reviews</a></span>
+          {% if settings.loox_enabled and settings.loox_pdp_rating %}
+            <div class="pdp__meta-row">
+              <a href="#looxReviews" class="pdp__rating">
+                <div class="loox-rating" data-id="{{ product.id }}"></div>
+              </a>
             </div>
-          </div>
+          {% endif %}
         </header>
 
         <div class="pdp__price" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
@@ -326,6 +325,19 @@
     </div>
   </div>
 </section>
+
+{% if settings.loox_enabled and settings.loox_pdp_reviews %}
+<!-- ========== LOOX REVIEWS ========== -->
+<section class="section section--compact pdp__reviews-section" aria-labelledby="pdp-reviews-heading">
+  <div class="container">
+    <header class="section__header section__header--center">
+      <span class="section__overline">Reviews</span>
+      <h2 class="section__title h2" id="pdp-reviews-heading">What customers are saying</h2>
+    </header>
+    <div id="looxReviews" data-product-id="{{ product.id }}"></div>
+  </div>
+</section>
+{% endif %}
 
 <!-- ========== RELATED ========== -->
 <section class="section section--compact" aria-labelledby="related-heading">

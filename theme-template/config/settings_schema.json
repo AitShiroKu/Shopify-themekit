@@ -217,5 +217,38 @@
         "label": "X / Twitter URL"
       }
     ]
+  },
+  {
+    "name": "Reviews (Loox)",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Requires the Loox app installed. Loox injects its script automatically — the theme only provides widget placements."
+      },
+      {
+        "type": "checkbox",
+        "id": "loox_enabled",
+        "label": "Enable Loox widgets",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "loox_pdp_rating",
+        "label": "Show star rating on product page",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "loox_pdp_reviews",
+        "label": "Show full reviews widget on product page",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "loox_card_rating",
+        "label": "Show star rating on product cards",
+        "default": true
+      }
+    ]
   }
 ]

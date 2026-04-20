@@ -2353,6 +2353,12 @@ p {
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 .value-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+/* Loox reviews integration */
+.pcard__rating { margin: 4px 0 6px; min-height: 16px; }
+.pcard__rating:empty { display: none; }
+.pdp__rating .loox-rating { display: inline-flex; align-items: center; }
+.pdp__reviews-section { padding-top: var(--space-4xl); }
+
 .value-card__icon {
   display: inline-flex;
   align-items: center;
